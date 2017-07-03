@@ -1,0 +1,40 @@
+{
+  "name": "@trust/pouch-crypto",
+  "version": "0.0.0",
+  "description": "PouchDB Storage for JSON Web Documents",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anvilresearch/pouch-crypto.git"
+  },
+  "keywords": [
+    "CouchDB",
+    "PouchDB",
+    "Cryptography",
+    "JOSE",
+    "JWT",
+    "JWD",
+    "Offline",
+    "Realtime",
+    "Replication",
+    "Signature",
+    "Encryption"
+  ],
+  "author": "MIT Connection Science",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anvilresearch/pouch-crypto/issues"
+  },
+  "homepage": "https://github.com/anvilresearch/pouch-crypto#readme",
+  "dependencies": {
+    "@trust/jose": "^0.3.0",
+    "pouchdb": "^6.2.0",
+    "pouchdb-find": "^6.2.0"
+  },
+  "devDependencies": {
+    "@trust/webcrypto": "^0.2.1"
+  }
+}

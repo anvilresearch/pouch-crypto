@@ -172,8 +172,20 @@ class PouchCrypto extends JWD {
    * @param {} name – desc
    * @returns {}
    */
-  static remove (doc) {
-    return this.database.remove(doc).then(result => !!result.ok)
+ static remove (id) {
+    let { database } = this
+
+    return Promise.resolve()
+      .then(() => database.get(id))
+      .then(doc => database.remove(doc))
+      .then(result => !!result.ok)
+      .catch(err => {
+        if (err.status === 404) {
+          return false
+        }
+
+        throw err
+      })
   }
 
   /**

@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/anvilresearch/pouch-crypto#readme",
   "dependencies": {
-    "@trust/jose": "^0.3.0",
+    "@trust/jose": "^0.3.1",
     "pouchdb": "^6.2.0",
     "pouchdb-find": "^6.2.0"
   },

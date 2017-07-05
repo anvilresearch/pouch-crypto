@@ -74,6 +74,13 @@ class PouchCrypto extends JWD {
 
     return this.database.get(id)
       .then(doc => new Extended(doc))
+      .catch(err => {
+        if (err.status === 404) {
+          return null
+        }
+
+        throw err
+      })
   }
 
   /**

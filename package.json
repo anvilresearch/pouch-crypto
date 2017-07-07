@@ -4,7 +4,7 @@
   "description": "PouchDB Storage for JSON Web Documents",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,9 @@
     "pouchdb-find": "^6.2.0"
   },
   "devDependencies": {
-    "@trust/webcrypto": "^0.2.1"
+    "@trust/webcrypto": "^0.2.1",
+    "chai": "^4.0.2",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^3.4.2"
   }
 }

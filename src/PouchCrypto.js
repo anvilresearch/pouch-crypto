@@ -28,7 +28,7 @@ class PouchCrypto extends JWD {
    * @param {(Object|string)} options – PouchDB options
    */
   static set database (options) {
-    this[DATABASE] = new PouchDB(options)
+    return this[DATABASE] = new PouchDB(options)
   }
 
   /**
@@ -40,7 +40,13 @@ class PouchCrypto extends JWD {
    * @returns {PouchDB}
    */
   static get database () {
-    return this[DATABASE]
+    let db = this[DATABASE]
+
+    if (!db) {
+      throw new Error(`Database must be configured for "${this.name}" class`)
+    }
+
+    return db
   }
 
   /**
@@ -53,8 +59,10 @@ class PouchCrypto extends JWD {
    * @param {Object} options – CouchDB mango query
    * @returns {Promise}
    */
-  static find (options) {
+  static find (options = {}) {
     let Extended = this
+
+    options.selector = options.selector || {}
 
     return this.database.find(options)
       .then(results => results.docs.map(doc => new Extended(doc)))
@@ -73,13 +81,21 @@ class PouchCrypto extends JWD {
     let Extended = this
 
     return this.database.get(id)
-      .then(doc => new Extended(doc))
+
+      // instantiate the result
+      .then(doc => {
+        return new Extended(doc)
+      })
+
+      // unknown documents are null
       .catch(err => {
-        if (err.status === 404) {
+        let { status, message } = err
+
+        if (status === 404) {
           return null
         }
 
-        throw err
+        throw new Error(message)
       })
   }
 
@@ -94,6 +110,8 @@ class PouchCrypto extends JWD {
    */
   static post (data) {
     let Extended = this
+
+    // VALIDATE
 
     return this.database.post(data)
       .then(result => {
@@ -117,60 +135,44 @@ class PouchCrypto extends JWD {
    * @param {Object} data – document to be stored.
    * @returns {Promise}
    */
-  static put (doc) {
-    return this.database.put(doc)
-      .then(data => {
-        doc['_rev'] = data.rev
-        return doc
+  static put (update) {
+    let Extended = this
+    let { database } = this
+
+    return Promise.resolve()
+
+      // get an existing document
+      .then(() => database.get(update._id))
+
+      // ensure latest revision
+      .then(doc => {
+        if (doc !== null) {
+          update['_rev'] = doc['_rev']
+        }
+
+        return database.put(update)
+      })
+
+      // set new revision
+      .then(result => {
+        update['_rev'] = result.rev
+
+        if (!(update instanceof Extended)) {
+          update = new Extended(update)
+        }
+
+        return update
       })
   }
 
   /**
-   * save
+   * remove
    *
    * @description
+   * Remove a document from the database.
    *
-   * @param {} name – desc
-   * @returns {}
-   */
-  static save (doc) {
-    if (!doc['_rev']) {
-      return this.post(doc)
-    }
-
-    return this.put(doc)
-  }
-
-  /**
-   * name
-   *
-   * @description
-   *
-   * @param {} name – desc
-   * @returns {}
-   */
-  static patch (doc, ops) {
-    doc.patch(ops)
-    return doc.save()
-  }
-
-  /**
-   * diff
-   *
-   * @description
-   *
-   * @param {} name – desc
-   * @returns {}
-   */
-  static diff () {}
-
-  /**
-   * name
-   *
-   * @description
-   *
-   * @param {} name – desc
-   * @returns {}
+   * @param {string} id – identifier of document to be deleted.
+   * @returns {Promise}
    */
  static remove (id) {
     let { database } = this
@@ -180,36 +182,56 @@ class PouchCrypto extends JWD {
       .then(doc => database.remove(doc))
       .then(result => !!result.ok)
       .catch(err => {
-        if (err.status === 404) {
+        let { status, message } = err
+
+        if (status === 404) {
           return false
         }
 
-        throw err
+        // TODO
+        // make our own custom error type here
+        throw new Error(message)
       })
   }
 
   /**
-   * name
+   * createIndex
    *
    * @description
+   * Create an index in the database.
    *
-   * @param {} name – desc
-   * @returns {}
+   * @param {Object} index – description of index
+   * @returns {Promise}
    */
   static createIndex (index) {
     return this.database.createIndex(index)
   }
 
   /**
-   * save
+   * put
    *
    * @description
+   * Update the instance in database.
    *
-   * @param {} name – desc
-   * @returns {}
+   * @returns {Promise}
    */
-  save () {
-    return this.constructor.database.save(this)
+  put () {
+    let database = this.database
+    let validation = this.validate()
+
+    if (!validation.valid) {
+      return Promise.reject(validation)
+    }
+
+    return database.put()
+
+  }
+
+  /**
+   * remove
+   */
+  remove () {
+    return this.constructor.remove(this)
   }
 
 }

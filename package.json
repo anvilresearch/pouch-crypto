@@ -1,6 +1,6 @@
 {
   "name": "@trust/pouch-crypto",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "PouchDB Storage for JSON Web Documents",
   "main": "src/index.js",
   "scripts": {
